@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>批量模板覆盖工具</title>
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div class="app-container">
+    <!-- 顶部标题栏 -->
+    <header class="app-header">
+      <h1 class="app-title">批量模板覆盖工具</h1>
+      <div class="header-actions">
+        <a href="README.html" class="theme-toggle" title="查看使用说明">使用说明</a>
+        <button class="theme-toggle" id="themeToggle" title="切换深色/浅色模式">深色模式</button>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <!-- 步骤1: 上传模板图片 -->
+      <section class="section card">
+        <h2 class="section-title">步骤1: 上传模板图片</h2>
+        <div class="upload-area" id="templateUploadArea">
+          <div class="upload-placeholder">
+            <span class="upload-icon">+</span>
+            <p>拖拽或点击上传模板图片</p>
+          </div>
+          <input type="file" class="upload-input" id="templateInput" accept="image/*" />
+        </div>
+        <div class="template-preview hidden" id="templatePreview">
+          <canvas id="templateCanvas"></canvas>
+          <div class="preview-info">
+            <span class="preview-label">模板</span>
+            <span class="preview-size" id="templateSize"></span>
+            <button class="btn btn-sm btn-outline" id="removeTemplate">移除</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 步骤2: 上传目标图片 -->
+      <section class="section card">
+        <h2 class="section-title">步骤2: 上传目标图片（可多选）</h2>
+        <div class="upload-area" id="targetUploadArea">
+          <div class="upload-placeholder">
+            <span class="upload-icon">+</span>
+            <p>拖拽或点击上传多张目标图片</p>
+          </div>
+          <input type="file" class="upload-input" id="targetInput" accept="image/*" multiple />
+        </div>
+        <div class="target-list hidden" id="targetList">
+          <div class="target-header collapsible-toggle" id="targetToggle">
+            <span class="target-count" id="targetCount">0 张图片</span>
+            <div class="target-header-actions">
+              <span class="collapse-arrow" id="targetArrow"></span>
+              <button class="btn btn-sm btn-outline" id="clearTargets">清空全部</button>
+            </div>
+          </div>
+          <div class="collapsible-body collapsed" id="targetBody">
+            <div class="grid-wrapper collapsed-rows" id="targetGridWrapper">
+              <div class="target-grid" id="targetGrid"></div>
+              <div class="grid-fade"></div>
+            </div>
+            <button class="grid-expand-btn hidden" id="targetExpandBtn">展开全部</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 步骤3: 处理设置 -->
+      <section class="section card">
+        <h2 class="section-title">步骤3: 处理设置</h2>
+
+        <!-- 输出格式 -->
+        <div class="setting-row">
+          <label class="setting-label" for="outputFormat">输出格式</label>
+          <select class="setting-select" id="outputFormat">
+            <option value="image/png">PNG</option>
+            <option value="image/jpeg" selected>JPEG</option>
+            <option value="image/webp">WebP</option>
+          </select>
+        </div>
+
+        <!-- JPEG 质量 -->
+        <div class="setting-row" id="qualityRow">
+          <label class="setting-label" for="qualitySlider">JPEG 质量</label>
+          <div class="slider-group">
+            <input type="range" class="slider" id="qualitySlider" min="10" max="100" value="100" step="1" />
+            <span class="slider-value" id="qualityValue">100%</span>
+          </div>
+        </div>
+
+        <!-- 批量重命名 -->
+        <div class="setting-section">
+          <h3 class="setting-subtitle">批量重命名</h3>
+          <div class="rename-row">
+            <div class="rename-field">
+              <label class="rename-label" for="namePrefix">前缀</label>
+              <input type="text" class="rename-input" id="namePrefix" placeholder="preview_" />
+            </div>
+            <div class="rename-field">
+              <label class="rename-label" for="nameSuffix">后缀</label>
+              <input type="text" class="rename-input" id="nameSuffix" placeholder="_final" />
+            </div>
+            <div class="rename-field">
+              <label class="rename-label" for="nameStart">起始序号</label>
+              <input type="number" class="rename-input" id="nameStart" value="1" min="1" max="9999" />
+            </div>
+          </div>
+          <p class="rename-preview" id="renamePreview">示例: preview_01_final.png</p>
+        </div>
+
+        <!-- 边框（可选） -->
+        <div class="setting-section">
+          <div class="toggle-header">
+            <h3 class="setting-subtitle">边框</h3>
+            <label class="toggle-switch">
+              <input type="checkbox" id="borderToggle" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="border-options hidden" id="borderOptions">
+            <div class="option-grid">
+              <div class="setting-row">
+                <label class="setting-label" for="borderColor">颜色</label>
+                <input type="color" class="color-input" id="borderColor" value="#000000" />
+              </div>
+              <div class="setting-row">
+                <label class="setting-label" for="borderWidth">宽度(px)</label>
+                <input type="number" class="setting-input setting-input-sm" id="borderWidth" value="2" min="0" max="100" />
+              </div>
+              <div class="setting-row">
+                <label class="setting-label" for="borderRadius">圆角(px)</label>
+                <input type="number" class="setting-input setting-input-sm" id="borderRadius" value="0" min="0" max="200" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 尺寸警告 -->
+      <div class="size-warnings" id="sizeWarnings"></div>
+
+      <!-- 步骤4: 预览区 -->
+      <section class="section card hidden" id="previewSection">
+        <div class="collapsible-toggle" id="previewToggle">
+          <h2 class="section-title">步骤4: 预览结果</h2>
+          <span class="collapse-arrow" id="previewArrow"></span>
+        </div>
+        <div class="collapsible-body collapsed" id="previewBody">
+          <div class="grid-wrapper collapsed-rows" id="resultGridWrapper">
+            <div class="result-grid" id="resultGrid"></div>
+            <div class="grid-fade"></div>
+          </div>
+          <button class="grid-expand-btn hidden" id="resultExpandBtn">展开全部</button>
+        </div>
+      </section>
+    </main>
+
+    <!-- 备案信息 -->
+    <div class="beian-bar">
+      <span class="beian-disclaimer">本站内容仅供学习和交流，非商业用途</span>
+      <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" class="beian-link">浙ICP备2025187466号</a>
+      <a href="https://www.beian.gov.cn/portal/registerSystemInfo?recordcode=33030402001483" target="_blank" rel="noopener noreferrer" class="beian-link beian-gongan">
+        <img src="https://www.937788.xyz/gonganbeian.png" alt="" class="beian-icon" onerror="this.style.display='none'" />
+        浙公网安备33030402001483号
+      </a>
+    </div>
+
+    <!-- 底部操作栏 -->
+    <footer class="app-footer">
+      <div class="progress-container hidden" id="progressContainer">
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <span class="progress-text" id="progressText">处理中...</span>
+      </div>
+      <button class="btn btn-primary" id="processBtn" disabled>开始处理</button>
+      <button class="btn btn-primary" id="downloadBtn" disabled>打包下载 ZIP</button>
+    </footer>
+  </div>
+
+  <!-- Toast 通知容器 -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
