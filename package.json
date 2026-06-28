@@ -6,12 +6,15 @@
   "scripts": {
     "dev": "vite",
     "build": "mkdir -p public && cp README.md public/README.md && vite build",
-    "preview": "vite preview"
+    "preview": "npm run build && wrangler dev",
+    "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
     "jszip": "^3.10.1"
   },
   "devDependencies": {
-    "vite": "^6.0.0"
+    "@cloudflare/vite-plugin": "^1.42.3",
+    "vite": "^6.0.0",
+    "wrangler": "^4.105.0"
   }
 }
