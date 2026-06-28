@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "cp README.md public/README.md && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
